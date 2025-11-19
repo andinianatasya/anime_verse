@@ -1,4 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../config/routes.dart';
 
 class FavoriteAnimeCard extends StatelessWidget {
   final String id;
@@ -21,7 +25,9 @@ class FavoriteAnimeCard extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return Card(
+    return GestureDetector(
+      onTap: () => {context.push('${AppRoutes.details}/$id')},
+      child: Card (
       margin: EdgeInsets.symmetric(
         horizontal: screenWidth * 0.04,
         vertical: screenHeight * 0.01,
@@ -37,12 +43,29 @@ class FavoriteAnimeCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(screenWidth * 0.04),
-              child: Image.asset(
-                imagePath,
-                width: screenWidth * 0.2,
-                height: screenHeight * 0.12,
-                fit: BoxFit.cover,
-              ),
+              child: imagePath.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: imagePath,
+                      width: screenWidth * 0.2,
+                      height: screenHeight * 0.12,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.white.withValues(alpha:0.1),
+                        child: const Icon(Icons.broken_image),
+                      ),
+                    )
+                  : Container(
+                      width: screenWidth * 0.2,
+                      height: screenHeight * 0.12,
+                      color: Colors.white.withValues(alpha: 0.1),
+                      child: const Icon(Icons.image_not_supported),
+                    ),
             ),
             SizedBox(width: screenWidth * 0.04),
 
@@ -70,11 +93,7 @@ class FavoriteAnimeCard extends StatelessWidget {
                   SizedBox(height: screenHeight * 0.01),
                   Row(
                     children: [
-                      Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: screenWidth * 0.04,
-                      ),
+                      Icon(Icons.star, color: Colors.amber, size: screenWidth * 0.04),
                       SizedBox(width: screenWidth * 0.01),
                       Text(
                         rating,
@@ -89,8 +108,9 @@ class FavoriteAnimeCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
+        )
+      )
+    ),
     );
   }
 }

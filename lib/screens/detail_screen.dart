@@ -1,11 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import '../models/anime.dart';
+import '../widgets/app_scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:lab_pemmob/data/dummy_data.dart';
-import 'package:lab_pemmob/models/anime.dart';
-import 'package:lab_pemmob/widgets/app_scaffold.dart';
 import 'package:provider/provider.dart';
 import '../provider/app_state_provider.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final String animeId;
 
   const DetailScreen({
@@ -14,18 +14,80 @@ class DetailScreen extends StatelessWidget {
   });
 
   @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  Anime? _anime;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAnimeDetails();
+  }
+
+  Future<void> _loadAnimeDetails() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final appState = Provider.of<AppStateProvider>(context, listen: false);
+      final malId = int.parse(widget.animeId);
+
+      final animeFromList = appState.animeList
+          .where((a) => a.malId == malId)
+          .firstOrNull;
+
+      if (animeFromList != null) {
+        setState(() {
+          _anime = animeFromList;
+          _isLoading = false;
+        });
+      } else {
+        final fetchedAnime = await appState.getAnimeById(malId);
+        if (fetchedAnime != null) {
+        }
+        setState(() {
+          _anime = fetchedAnime;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load anime: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Fetch anime by ID from DummyData
-    final Anime? anime = DummyData.animeList.cast<Anime?>().firstWhere(
-          (anime) => anime?.id == animeId,
-      orElse: () => null,
-    );
+    if (_isLoading) {
+      return AppScaffold(
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text(
+                'Loading anime details...',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-    // Handle case when anime is not found
-    if (anime == null) {
+    if (_errorMessage != null || _anime == null) {
       return AppScaffold(
         body: Center(
           child: Column(
@@ -38,20 +100,13 @@ class DetailScreen extends StatelessWidget {
               ),
               SizedBox(height: screenHeight * 0.02),
               Text(
-                'Anime not found',
+                _errorMessage ?? 'Anime not found',
                 style: TextStyle(
                   fontSize: screenWidth * 0.05,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
-              ),
-              SizedBox(height: screenHeight * 0.01),
-              Text(
-                'ID: $animeId',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: screenWidth * 0.04,
-                ),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: screenHeight * 0.03),
               ElevatedButton(
@@ -67,10 +122,11 @@ class DetailScreen extends StatelessWidget {
       );
     }
 
+    final anime = _anime!;
+
     return AppScaffold(
       body: CustomScrollView(
         slivers: [
-          // Header section with image and title
           SliverAppBar(
             floating: true,
             pinned: true,
@@ -101,12 +157,42 @@ class DetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Background image
-                  Image.asset(
-                    anime.imagePath,
+                  (anime.largeImageUrl ?? anime.imageUrl) != null
+                      ? CachedNetworkImage(
+                    imageUrl: anime.largeImageUrl ?? anime.imageUrl ?? '',
                     fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.black,
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.black,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.broken_image, size: 64, color: Colors.white38),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Failed to load image',
+                            style: TextStyle(color: Colors.white38),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                      : Container(
+                    color: Colors.black,
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.image_not_supported, size: 64, color: Colors.white38),
+                        SizedBox(height: 8),
+                        Text('No image available', style: TextStyle(color: Colors.white38)),
+                      ],
+                    ),
                   ),
-                  // Gradient overlay for better text visibility
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -172,7 +258,7 @@ class DetailScreen extends StatelessWidget {
                         // Favorite Button
                         Consumer<AppStateProvider>(
                           builder: (context, favoriteProvider, child) {
-                            final isFavorite = favoriteProvider.isFavorite(anime.id);
+                            final isFavorite = favoriteProvider.isFavorite(anime.malId);
 
                             return Container(
                               margin: EdgeInsets.only(left: screenWidth * 0.03),
