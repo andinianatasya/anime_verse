@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1015167793714",
+    "project_id": "anime-verse-bec1b",
+    "storage_bucket": "anime-verse-bec1b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015167793714:android:f028d0a43fed5f23651a2b",
+        "android_client_info": {
+          "package_name": "com.example.lab_pemmob"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015167793714-bkr0bqasmrb188bpfkbp2812mv155plk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lab_pemmob",
+            "certificate_hash": "669a8b9c902fd5fb4b82f15375a2d42f6749468f"
+          }
+        },
+        {
+          "client_id": "1015167793714-eukq1inebv9ijhvgdou0sma4luumv4b5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lab_pemmob",
+            "certificate_hash": "97b6a266f9c9ff64198798301fc3622bcb7e5fbe"
+          }
+        },
+        {
+          "client_id": "1015167793714-k4nrh4am3jgpcofjkic3bi054li55pl1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCs3oVUhPUFO0XWLPVtBM47dyVFCGEUcl0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015167793714-k4nrh4am3jgpcofjkic3bi054li55pl1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

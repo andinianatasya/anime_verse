@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/firestore_service.dart';
 import '../models/anime.dart';
 import '../repositories/anime_repository.dart';
 
@@ -18,8 +18,10 @@ class AppStateProvider extends ChangeNotifier {
   
   bool _isSearchMode = false;
   
+  final FirestoreService _firestoreService = FirestoreService();
+  StreamSubscription<List<Anime>>? _favoritesSubscription;
+  
   List<Anime> _favorites = [];
-  static const String _storageKey = 'favorite_anime_list';
 
   String _selectedGenre = "All";
   
@@ -40,8 +42,32 @@ class AppStateProvider extends ChangeNotifier {
   String get favoriteSearchQuery => _favoriteSearchQuery;
 
   AppStateProvider() {
-    _loadFavorites();
+    _initAuthListener();
     fetchTopAnime();
+  }
+
+  void _initAuthListener() {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null) {
+        _subscribeToFavorites(user.uid);
+      } else {
+        _unsubscribeFromFavorites();
+      }
+    });
+  }
+
+  void _subscribeToFavorites(String userId) {
+    _favoritesSubscription?.cancel();
+    _favoritesSubscription = _firestoreService.getFavoritesStream(userId).listen((favorites) {
+      _favorites = favorites;
+      notifyListeners();
+    });
+  }
+
+  void _unsubscribeFromFavorites() {
+    _favoritesSubscription?.cancel();
+    _favorites = [];
+    notifyListeners();
   }
 
 
@@ -124,34 +150,7 @@ class AppStateProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _loadFavorites() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? favoritesJson = prefs.getString(_storageKey);
-      
-      if (favoritesJson != null) {
-        final List<dynamic> decoded = json.decode(favoritesJson);
-        _favorites = decoded.map((item) {
-          return Anime.fromFavoritesJson(item);
-        }).toList();
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('Error loading favorites: $e');
-    }
-  }
 
-  Future<void> _saveFavorites() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final List<Map<String, dynamic>> favoritesJson = 
-          _favorites.map((anime) => anime.toJson()).toList();
-      
-      await prefs.setString(_storageKey, json.encode(favoritesJson));
-    } catch (e) {
-      debugPrint('Error saving favorites: $e');
-    }
-  }
 
   bool isFavorite(int malId) {
     return _favorites.any((anime) => anime.malId == malId);
@@ -165,18 +164,18 @@ class AppStateProvider extends ChangeNotifier {
     }
   }
 
-  void addFavorite(Anime anime) {
-    if (!isFavorite(anime.malId)) {
-      _favorites.add(anime);
-      _saveFavorites();
-      notifyListeners();
+  Future<void> addFavorite(Anime anime) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await _firestoreService.addFavorite(user.uid, anime);
     }
   }
 
-  void removeFavorite(int malId) {
-    _favorites.removeWhere((anime) => anime.malId == malId);
-    _saveFavorites();
-    notifyListeners();
+  Future<void> removeFavorite(int malId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await _firestoreService.removeFavorite(user.uid, malId);
+    }
   }
 
   int get favoritesCount => _favorites.length;

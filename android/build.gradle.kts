@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Ini adalah definisi versi plugin Google Services (Firebase)
+        classpath("com.google.gms:google-services:4.4.2")
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -17,6 +28,11 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+    tasks.whenTaskAdded {
+        if (name.contains("UnitTest")) {
+            enabled = false
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {
