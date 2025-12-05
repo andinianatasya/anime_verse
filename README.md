@@ -1,16 +1,22 @@
-# lab_pemmob
+# Lab PM3
 
-A new Flutter project.
+Andini Anatasia
+231401002
 
-## Getting Started
+## Project Description
 
-This project is a starting point for a Flutter application.
+Anime Verse adalah aplikasi mobile yang dibuat menggunakan Flutter dan berfungsi sebagai platform untuk menampilkan berbagai jenis anime. Pengguna dapat melihat daftar anime beserta judul, genre, gambar, dan deskripsi singkat setiap anime.
 
-A few resources to get you started if this is your first Flutter project:
+## Screenshots Aplikasi
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+![Splash Screen](assets/screenshots/splash_screen.jpeg)
+![Sign Up](assets/screenshots/signup.jpeg)
+![Sign In](assets/screenshots/signin.jpeg)
+![Home](assets/screenshots/home.jpeg)
+![Anime Detail](assets/screenshots/anime_detail.jpeg)
+![Favorite](assets/screenshots/favorite.jpeg)
+![Profil](assets/screenshots/profil.jpeg)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Link Demo Aplikasi
+
+[🚀](https://drive.google.com/drive/folders/1trKUI6IvRL7aSp563yCX_K353ekfTeZi?usp=sharing)
