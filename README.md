@@ -19,4 +19,4 @@ Anime Verse adalah aplikasi mobile yang dibuat menggunakan Flutter dan berfungsi
 
 ## Link Demo Aplikasi
 
-[🚀](https://drive.google.com/drive/folders/1trKUI6IvRL7aSp563yCX_K353ekfTeZi?usp=sharing)
+[🚀Link demo aplikasi](https://drive.google.com/drive/folders/1trKUI6IvRL7aSp563yCX_K353ekfTeZi?usp=sharing)
